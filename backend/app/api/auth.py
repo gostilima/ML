@@ -14,7 +14,6 @@ from app.schemas.auth import (
     RefreshRequest,
     RegisterRequest,
     ResetPasswordRequest,
-    TokenPair,
     UserOut,
 )
 from app.services.auth_service import AuthService
@@ -29,9 +28,11 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     access, refresh = service.issue_tokens(user)
     return success_envelope(
         {
+            "access_token": access,
+            "refresh_token": refresh,
+            "token_type": "bearer",
             "user": UserOut.model_validate(user),
             "organization_id": org.id,
-            "tokens": TokenPair(access_token=access, refresh_token=refresh),
         }
     )
 
@@ -41,14 +42,21 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     service = AuthService(db)
     user = service.authenticate(payload.email, payload.password)
     access, refresh = service.issue_tokens(user)
-    return success_envelope({"tokens": TokenPair(access_token=access, refresh_token=refresh)})
+    return success_envelope(
+        {
+            "access_token": access,
+            "refresh_token": refresh,
+            "token_type": "bearer",
+            "user": UserOut.model_validate(user),
+        }
+    )
 
 
 @router.post("/refresh")
 def refresh(payload: RefreshRequest, db: Session = Depends(get_db)):
     service = AuthService(db)
     access, refresh_token = service.refresh_access_token(payload.refresh_token)
-    return success_envelope({"tokens": TokenPair(access_token=access, refresh_token=refresh_token)})
+    return success_envelope({"access_token": access, "refresh_token": refresh_token, "token_type": "bearer"})
 
 
 @router.post("/logout")

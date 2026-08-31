@@ -70,6 +70,6 @@ def registered_user(client):
 
 @pytest.fixture()
 def auth_headers(registered_user):
-    token = registered_user["tokens"]["access_token"]
+    token = registered_user["access_token"]
     org_id = registered_user["organization_id"]
     return {"Authorization": f"Bearer {token}", "X-Organization-Id": org_id}

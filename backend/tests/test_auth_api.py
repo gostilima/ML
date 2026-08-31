@@ -11,8 +11,8 @@ def test_register_creates_user_and_org(client):
     assert body["success"] is True
     assert body["data"]["user"]["email"] == "alice@example.com"
     assert body["data"]["organization_id"]
-    assert body["data"]["tokens"]["access_token"]
-    assert body["data"]["tokens"]["refresh_token"]
+    assert body["data"]["access_token"]
+    assert body["data"]["refresh_token"]
 
 
 def test_register_duplicate_email_fails(client):
@@ -40,7 +40,8 @@ def test_login_success_and_wrong_password(client):
 
     good = client.post("/api/v1/auth/login", json={"email": payload["email"], "password": payload["password"]})
     assert good.status_code == 200
-    assert good.json()["data"]["tokens"]["access_token"]
+    assert good.json()["data"]["access_token"]
+    assert good.json()["data"]["user"]["email"] == payload["email"]
 
     bad = client.post("/api/v1/auth/login", json={"email": payload["email"], "password": "wrong"})
     assert bad.status_code == 401
@@ -62,10 +63,10 @@ def test_me_returns_profile(client, auth_headers):
 
 
 def test_refresh_and_logout_flow(client, registered_user):
-    refresh_token = registered_user["tokens"]["refresh_token"]
+    refresh_token = registered_user["refresh_token"]
     refreshed = client.post("/api/v1/auth/refresh", json={"refresh_token": refresh_token})
     assert refreshed.status_code == 200
-    new_tokens = refreshed.json()["data"]["tokens"]
+    new_tokens = refreshed.json()["data"]
     assert new_tokens["access_token"]
 
     # old refresh token was rotated -- reusing it should now fail
