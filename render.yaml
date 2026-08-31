@@ -1,0 +1,64 @@
+services:
+  - type: web
+    name: marketplace-intelligence-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    healthCheckPath: /docs
+    envVars:
+      - key: ENV
+        value: production
+      - key: PROJECT_NAME
+        value: Marketplace Intelligence
+      - key: API_V1_PREFIX
+        value: /api/v1
+      # Comma-separated list of allowed frontend origins, e.g.
+      # https://marketplace-intelligence-frontend.onrender.com
+      - key: BACKEND_CORS_ORIGINS
+        sync: false
+      # URL of the deployed frontend; used to redirect the browser back
+      # after the Mercado Livre OAuth callback.
+      - key: FRONTEND_URL
+        sync: false
+      # Supabase Postgres connection string (session pooler recommended),
+      # e.g. postgresql+psycopg2://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: CELERY_BROKER_URL
+        sync: false
+      - key: CELERY_RESULT_BACKEND
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      # Fernet key used to encrypt stored ML credentials/tokens at rest.
+      # Generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+      - key: CREDENTIALS_ENCRYPTION_KEY
+        sync: false
+      - key: MELI_CLIENT_ID
+        sync: false
+      - key: MELI_CLIENT_SECRET
+        sync: false
+      # https://<this-service>.onrender.com/api/v1/integrations/mercado-livre/oauth/callback
+      - key: MELI_REDIRECT_URI
+        sync: false
+      - key: AI_API_KEY
+        sync: false
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "120"
+
+  - type: web
+    name: marketplace-intelligence-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: starter
+    envVars:
+      # Set this to the backend service's public URL + /api/v1 once it's
+      # deployed, e.g. https://marketplace-intelligence-backend.onrender.com/api/v1
+      # NOTE: Next.js bakes NEXT_PUBLIC_* vars in at build time, so changing
+      # this requires a redeploy (Manual Deploy > Clear build cache & deploy).
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
