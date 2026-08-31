@@ -45,7 +45,7 @@ def test_authorize_url_builds_expected_shape(client, auth_headers):
     response = client.get("/api/v1/integrations/mercado-livre/oauth/authorize-url", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()["data"]
-    assert data["authorize_url"].startswith("https://auth.mercadolibre.com.br/authorization?")
+    assert data["authorize_url"].startswith("https://auth.mercadolivre.com.br/authorization?")
     assert "response_type=code" in data["authorize_url"]
     assert "client_id=myclientid123" in data["authorize_url"]
     assert "state=" + data["state"] in data["authorize_url"]

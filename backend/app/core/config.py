@@ -36,7 +36,11 @@ class Settings(BaseSettings):
     MELI_CLIENT_ID: str = ""
     MELI_CLIENT_SECRET: str = ""
     MELI_REDIRECT_URI: str = "http://localhost:8000/api/v1/integrations/mercado-livre/oauth/callback"
-    MELI_AUTH_BASE_URL: str = "https://auth.mercadolibre.com.br"
+    # NOTE: Brazil's Mercado Livre site is "mercadolivre.com.br" (Portuguese
+    # spelling, with a "v") -- not "mercadolibre.com.br" (Spanish spelling +
+    # .br), which isn't a real domain and fails DNS resolution entirely.
+    # The Spanish spelling is only correct for the unified API host below.
+    MELI_AUTH_BASE_URL: str = "https://auth.mercadolivre.com.br"
     MELI_API_BASE_URL: str = "https://api.mercadolibre.com"
 
     # AI
